@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
     // IMPORTANT: Replace this with your actual API Gateway Invoke URL
-    const API_BASE_URL = 'https://nsmvl12p29.execute-api.ap-south-1.amazonaws.com/production';
+    const API_BASE_URL = 'XXXXXXXXXXXXXXXXXXXXXX';
 
     // --- DOM ELEMENT SELECTORS ---
     const pages = document.querySelectorAll('.page');
@@ -379,4 +379,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- RUN APPLICATION ---
     initializeDashboard();
+
 });
