@@ -22,3 +22,6 @@ Programming Language: Python
 Cloud Services: AWS Lambda, Amazon DynamoDB, Amazon API Gateway, Amazon SNS
 
 Libraries/SDKs: Boto3 (AWS SDK for Python)
+
+### Parking Slot Availability UI  
+![UI Screenshot](images/)  
