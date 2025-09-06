@@ -25,3 +25,5 @@ Libraries/SDKs: Boto3 (AWS SDK for Python)
 
 ### Parking Slot Availability UI  
 ![UI Screenshot](image/1.png)  
+![UI Screenshot](image/2.png)  
+![UI Screenshot](image/3.png)  
