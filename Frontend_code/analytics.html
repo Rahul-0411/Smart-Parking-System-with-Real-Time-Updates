@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --primary-color: #0d6efd;
+            --primary-light: #cfe2ff;
+            --success-color: #198754;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 24px;
+            color: var(--text-primary);
+        }
+        .container {
+            max-width: 1400px;
+            margin: auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        header .title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        header svg {
+            color: var(--primary-color);
+        }
+        h1 {
+            color: var(--text-primary);
+            margin: 0;
+            font-weight: 700;
+            font-size: 2.25rem;
+        }
+        #report-info {
+            color: var(--text-secondary);
+            margin: 8px 0 24px 0;
+            font-size: 1.1rem;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            background-color: var(--card-bg);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .controls label {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        input[type="date"], button {
+            padding: 10px 16px;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fff;
+            transition: all 0.2s ease;
+        }
+        button {
+            cursor: pointer;
+            font-weight: 600;
+        }
+        #get-report-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        #get-report-btn:hover {
+            opacity: 0.9;
+        }
+        #download-csv-btn {
+            background-color: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+        #download-csv-btn:hover {
+            opacity: 0.9;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px var(--shadow-color);
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: all 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.07);
+        }
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+        @media (min-width: 992px) {
+            .main-layout {
+                grid-template-columns: 1fr 1fr;
+            }
+            .full-width {
+                grid-column: 1 / -1;
+            }
+        }
+        h2 {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-size: 1.5rem;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 24px;
+        }
+        .metric-card {
+            text-align: left;
+            padding: 20px;
+        }
+        .metric-card h3 {
+            margin: 0 0 8px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .metric-card .value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        #area-summary-container h3 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+        #area-summary-container ul {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 0 0 24px 0;
+        }
+        #area-summary-container li {
+            font-weight: 500;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            padding: 6px 12px;
+            border-radius: 30px;
+        }
+        .area-section h3 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+        }
+        .slot {
+            padding: 16px 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+        .slot strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 1rem;
+        }
+        #loading-message {
+            text-align: center;
+            font-size: 1.2rem;
+            padding: 40px;
+            display: none;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-p-square-fill" viewBox="0 0 16 16">
+                    <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2Zm4.375 4.062c1.427 0 2.156.812 2.156 2.034 0 1.21-.73 2.034-2.156 2.034h-1.42v3.125h-1.5V4.062h2.944Zm-1.42 1.219v1.625h1.42c.625 0 .938-.422.938-1.016 0-.6-.313-1.015-.938-1.015h-1.42Z"/>
+                </svg>
+                <h1>Smart Parking Dashboard</h1>
+            </div>
+            <p id="report-info">Please select a date or date range to view the report.</p>
+            <div class="controls">
+                <label for="start-date-picker">From:</label>
+                <input type="date" id="start-date-picker">
+                <label for="end-date-picker">To:</label>
+                <input type="date" id="end-date-picker">
+                <button id="get-report-btn">Get Report</button>
+                <button id="download-csv-btn">Download CSV</button>
+            </div>
+        </header>
+
+        <p id="loading-message"></p>
+
+        <div id="dashboard-content" style="display: none;">
+            <div class="metrics-grid full-width">
+                 <div class="card metric-card"><h3><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708 0l2.353 2.354 4.354-4.353a.5.5 0 0 1 .708 0l3.147 3.147V1.5a.5.5 0 0 1-.5-.5h-13z"/><path d="M1 13.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"/></svg>Total Entries</h3><p id="total-entries" class="value">0</p></div>
+                 <div class="card metric-card"><h3><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.5 5H.5a.5.5 0 0 1 0-1h15a.5.5 0 0 1 0 1zM.5 11.5a.5.5 0 0 1 0-1h15a.5.5 0 0 1 0 1z"/><path d="M2.354 1.646a.5.5 0 0 1 0 .708L.707 4H3.5a.5.5 0 0 1 0 1H.707l1.647 1.646a.5.5 0 1 1-.708.708l-2-2a.5.5 0 0 1 0-.708l2-2a.5.5 0 0 1 .708 0zM13.646 10.646a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L11.293 12H9.5a.5.5 0 0 1 0-1h1.793l-1.647-1.646a.5.5 0 1 1 .708-.708l2 2z"/></svg>Completed Exits</h3><p id="total-exits" class="value">0</p></div>
+                 <div class="card metric-card"><h3><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.293 3.5a1 1 0 0 1 1.414 0L4 5.793V2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5v3.293l2.293-2.293a1 1 0 1 1 1.414 1.414l-3.5 3.5a1 1 0 0 1-1.414 0l-3.5-3.5a1 1 0 0 1 0-1.414Z"/><path d="M3.5 1a.5.5 0 0 1 .5.5V3h5V1.5a.5.5 0 0 1 1 0V3h1.5a.5.5 0 0 1 .5.5v3.293l2.293-2.293a1 1 0 1 1 1.414 1.414l-3.5 3.5a1 1 0 0 1-1.414 0L10 6.207V13.5a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1-.5-.5V6.207l-1.793 1.793a1 1 0 1 1-1.414-1.414L3.5 4.793V3.5a.5.5 0 0 1-.5-.5Z"/></svg>Currently Parked</h3><p id="currently-parked" class="value">0</p></div>
+                 <div class="card metric-card"><h3><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>Peak Entry Hour</h3><p id="peak-entry" class="value">N/A</p></div>
+                 <div class="card metric-card"><h3><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>Peak Exit Hour</h3><p id="peak-exit" class="value">N/A</p></div>
+            </div>
+
+            <main class="main-layout">
+                <div class="card">
+                    <h2>Vehicle Trends</h2>
+                    <div class="chart-container" style="position: relative; height:400px; width:100%">
+                        <canvas id="trendsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Area & Slot Utilization</h2>
+                    <div id="area-summary-container"></div>
+                    <div id="grouped-heatmap-container"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://1laoosz0g0.execute-api.ap-south-1.amazonaws.com/dev/Vehicle_Entry_Lambda/analytics';
+        let trendsChartInstance = null;
+
+        const getReportBtn = document.getElementById('get-report-btn');
+        const downloadCsvBtn = document.getElementById('download-csv-btn');
+        const startDatePicker = document.getElementById('start-date-picker');
+        const endDatePicker = document.getElementById('end-date-picker');
+
+        getReportBtn.addEventListener('click', () => fetchAndDisplayData('json'));
+        downloadCsvBtn.addEventListener('click', () => fetchAndDisplayData('csv'));
+        
+        function fetchAndDisplayData(format) {
+            const startDate = startDatePicker.value;
+            const endDate = endDatePicker.value || startDate;
+
+            if (!startDate) { alert('Please select a start date.'); return; }
+            if (startDate > endDate) { alert('Start date cannot be after the end date.'); return; }
+
+            let finalUrl = `${API_BASE_URL}?startDate=${startDate}&endDate=${endDate}`;
+            if (format === 'csv') {
+                finalUrl += '&format=csv';
+                window.open(finalUrl, '_blank');
+                return;
+            }
+            fetchData(finalUrl);
+        }
+        
+        async function fetchData(url) {
+            const loadingMessage = document.getElementById('loading-message');
+            const dashboardContent = document.getElementById('dashboard-content');
+            loadingMessage.innerText = 'Fetching data...';
+            loadingMessage.style.display = 'block';
+            dashboardContent.style.display = 'none';
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `API Error: ${response.status}`);
+                }
+                const data = await response.json();
+                updateUI(data);
+                loadingMessage.style.display = 'none';
+                dashboardContent.style.display = 'block';
+            } catch (error) {
+                loadingMessage.innerText = `Failed to load data: ${error.message}`;
+            }
+        }
+
+        function updateUI(data) {
+            document.getElementById('report-info').innerText = `Displaying report from ${data.reportStartDate} to ${data.reportEndDate}`;
+            
+            document.getElementById('total-entries').innerText = data.dailyUsage.totalEntries;
+            document.getElementById('total-exits').innerText = data.dailyUsage.totalExits;
+            document.getElementById('currently-parked').innerText = data.dailyUsage.currentlyParked;
+            document.getElementById('peak-entry').innerText = data.peakHours.peakEntryHour !== 'N/A' ? `${data.peakHours.peakEntryHour}:00` : 'N/A';
+            document.getElementById('peak-exit').innerText = data.peakHours.peakExitHour !== 'N/A' ? `${data.peakHours.peakExitHour}:00` : 'N/A';
+
+            renderAreaSummary(data.utilization.byArea);
+            renderGroupedHeatmap(data.utilization.bySlot);
+            renderTrendsChart(data.vehicleTrends);
+        }
+        
+        function renderAreaSummary(areaData) {
+            const container = document.getElementById('area-summary-container');
+            container.innerHTML = ''; 
+
+            if (!areaData || Object.keys(areaData).length === 0) return;
+
+            const summaryHeader = document.createElement('h3');
+            summaryHeader.innerText = 'Total Entries by Area';
+            
+            const list = document.createElement('ul');
+            
+            const sortedAreas = Object.entries(areaData).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+
+            for (const [areaId, count] of sortedAreas) {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<strong>Area ${areaId}:</strong> ${count}`;
+                list.appendChild(listItem);
+            }
+            
+            container.appendChild(summaryHeader);
+            container.appendChild(list);
+        }
+
+        function renderTrendsChart(trendsData) {
+            const ctx = document.getElementById('trendsChart').getContext('2d');
+            if (trendsChartInstance) { trendsChartInstance.destroy(); }
+
+            const totalEntries = trendsData.entries.reduce((a, b) => a + b, 0);
+            const totalExits = trendsData.exits.reduce((a, b) => a + b, 0);
+
+            if (totalEntries === 0 && totalExits === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.font = "16px 'Inter', sans-serif";
+                ctx.fillStyle = '#6c757d';
+                ctx.textAlign = 'center';
+                ctx.fillText('No vehicle trend data available for this period.', ctx.canvas.width / 2, 50);
+                return;
+            }
+
+            const maxDataValue = Math.max(...trendsData.entries, ...trendsData.exits);
+            
+            trendsChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: trendsData.hours.map(h => `${h}:00`),
+                    datasets: [
+                        { 
+                            label: 'Entries', 
+                            data: trendsData.entries, 
+                            backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                            borderColor: 'rgba(13, 110, 253, 1)',
+                            borderWidth: 1
+                        },
+                        { 
+                            label: 'Exits', 
+                            data: trendsData.exits, 
+                            backgroundColor: 'rgba(108, 117, 125, 0.7)',
+                            borderColor: 'rgba(108, 117, 125, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: { 
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { 
+                        y: { 
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: Math.max(1, Math.ceil(maxDataValue / 5)) 
+                            },
+                            suggestedMax: maxDataValue + 2 
+                        } 
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+        
+        function renderGroupedHeatmap(slotData) {
+            const container = document.getElementById('grouped-heatmap-container');
+            container.innerHTML = '';
+            
+            if (!slotData || Object.keys(slotData).length === 0) {
+                container.innerText = 'No slot utilization data available.';
+                return;
+            }
+
+            const groupedByArea = {};
+            for (const [slotId, count] of Object.entries(slotData)) {
+                const areaMatch = slotId.match(/^A(\d+)/);
+                if (areaMatch) {
+                    const areaId = areaMatch[1];
+                    if (!groupedByArea[areaId]) groupedByArea[areaId] = {};
+                    groupedByArea[areaId][slotId] = count;
+                }
+            }
+
+            const maxUtilization = Math.max(...Object.values(slotData), 1);
+
+            const sortedAreas = Object.keys(groupedByArea).sort((a, b) => a - b);
+            
+            for (const areaId of sortedAreas) {
+                const areaSection = document.createElement('div');
+                areaSection.className = 'area-section';
+                
+                const areaHeader = document.createElement('h3');
+                areaHeader.innerText = `Area ${areaId} Details`;
+                
+                const grid = document.createElement('div');
+                grid.className = 'heatmap-grid';
+
+                const sortedSlots = Object.entries(groupedByArea[areaId]).sort((a, b) => a[0].localeCompare(b[0]));
+
+                for (const [slotId, count] of sortedSlots) {
+                    const element = document.createElement('div');
+                    element.className = 'slot';
+                    element.innerHTML = `<strong>${slotId}</strong><span>${count} used</span>`;
+                    const intensity = Math.min(count / maxUtilization, 1);
+                    const hue = 120 * (1 - intensity);
+                    element.style.backgroundColor = `hsl(${hue}, 90%, 55%)`;
+                    grid.appendChild(element);
+                }
+
+                areaSection.appendChild(areaHeader);
+                areaSection.appendChild(grid);
+                container.appendChild(areaSection);
+            }
+        }
+    </script>
+</body>
+</html>

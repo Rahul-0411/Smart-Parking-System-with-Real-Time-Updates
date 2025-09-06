@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Management</title>
+    <style>
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #6c757d;
+            --background-color: #f4f7f6;
+            --container-bg: #ffffff;
+            --text-color: #333;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .main-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+        .forms-wrapper {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+        @media (min-width: 768px) {
+            .forms-wrapper {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .form-container {
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        h2 {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #exit-form button {
+            background-color: var(--secondary-color);
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #response-area {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 13px;
+            font-family: var(--font-family);
+            white-space: normal;
+            word-wrap: break-word;
+            display: none;
+        }
+        .response-success {
+            background-color: #e9f7ef;
+            color: #187245;
+            border: 1.5px solid var(--success-color);
+            animation: fadein 0.4s;
+        }
+        .response-error {
+            background-color: #fdecea;
+            color: #a51825;
+            border: 1.5px solid var(--error-color);
+            font-family: 'Courier New', Courier, monospace;
+            animation: shake 0.2s;
+        }
+        @keyframes fadein {
+          0% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+            100% { transform: translateX(0); }
+        }
+        .interactive-success {
+            margin: 0;
+        }
+        .result-title {
+            font-size: 1.35rem;
+            color: var(--success-color);
+            font-weight: bold;
+            margin-bottom: 14px;
+            letter-spacing: 0.5px;
+        }
+        .badge {
+            display: inline-block;
+            min-width: 55px;
+            padding: 3px 16px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            background: #ffffffec;
+            border: 1.5px solid var(--secondary-color);
+            color: var(--secondary-color);
+            margin-right: 10px;
+            margin-bottom: 4px;
+            box-shadow: 1px 1px 5px #f3f3f3;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        .details-table th,
+        .details-table td {
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e3e8ec;
+            font-size: 1rem;
+        }
+        .details-table th {
+            background: #f6fafd;
+            color: var(--secondary-color);
+            width: 160px;
+        }
+        .next-steps-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 10px 0 0 0;
+            font-size: 1rem;
+        }
+        .next-steps-list li::before {
+            content: "✅ ";
+            color: #28a745;
+            font-weight: bold;
+        }
+        .exit-message-title {
+            font-size: 1.28rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 11px;
+            letter-spacing: 0.3px;
+        }
+        .big-slot {
+            display: inline-block;
+            background: #007bffd0;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.25em;
+            padding: 5px 20px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            box-shadow: 0 1.5px 7px #007bff2a;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <h1>🅿 Smart Parking System</h1>
+        <div class="forms-wrapper">
+            <div class="form-container">
+                <h2>Vehicle Entry</h2>
+                <form id="entry-form">
+                    <div class="form-group">
+                        <label for="entry-vehicle-id">Vehicle ID</label>
+                        <input type="text" id="entry-vehicle-id" placeholder="e.g., ABC123" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="e.g., driver@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="area">Area Number</label>
+                        <input type="number" id="area" placeholder="e.g., 1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="floor">Floor Number (Optional)</label>
+                        <input type="number" id="floor" placeholder="e.g., 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="expected">Expected Time (minutes)</label>
+                        <input type="number" id="expected" placeholder="e.g., 60" required>
+                    </div>
+                    <button type="submit">Assign Parking Spot</button>
+                </form>
+            </div>
+
+            <div class="form-container">
+                <h2>Vehicle Exit</h2>
+                <form id="exit-form">
+                    <div class="form-group">
+                        <label for="exit-vehicle-id">Vehicle ID</label>
+                        <input type="text" id="exit-vehicle-id" placeholder="e.g., ABC123" required>
+                    </div>
+                    <button type="submit">Process Vehicle Exit</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="response-area"></div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // !!! IMPORTANT: REPLACE WITH YOUR API GATEWAY URL if changed !!!
+        const apiUrl = 'https://1laoosz0g0.execute-api.ap-south-1.amazonaws.com/dev/Vehicle_Entry_Lambda';
+
+        const entryForm = document.getElementById('entry-form');
+        const exitForm = document.getElementById('exit-form');
+        const responseArea = document.getElementById('response-area');
+
+        entryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const floorValue = document.getElementById('floor').value;
+            const payload = {
+                event: 'entry',
+                vehicle_id: document.getElementById('entry-vehicle-id').value,
+                area: parseInt(document.getElementById('area').value),
+                expected: document.getElementById('expected').value,
+                email: document.getElementById('email').value
+            };
+            if (floorValue) payload.floor = parseInt(floorValue);
+            await sendRequest(payload);
+        });
+
+        exitForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                event: 'exit',
+                vehicle_id: document.getElementById('exit-vehicle-id').value
+            };
+            await sendRequest(payload);
+        });
+
+        function formatUTCtoIST(utcStr) {
+            if (!utcStr) return '--';
+            const date = new Date(utcStr);
+            return date.toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+                timeZone: 'Asia/Kolkata'
+            }).toLowerCase().replace('am', 'a.m.').replace('pm', 'p.m.');
+        }
+
+        async function sendRequest(payload) {
+            responseArea.style.display = 'none';
+            responseArea.innerHTML = 'Loading...';
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                const responseBody = (typeof result.body === 'string') ? JSON.parse(result.body) : result.body;
+                if (response.ok && result.statusCode < 300) {
+                    displayInteractiveResponse(responseBody, payload.event);
+                } else {
+                    displayErrorResponse(responseBody);
+                }
+            } catch (error) {
+                displayErrorResponse({ error: 'Failed to connect to the API. Check the console and the API URL.' });
+                console.error(error);
+            }
+        }
+
+        function displayInteractiveResponse(data, eventType) {
+            let html = '';
+            // Entry confirmation
+            if (data && data.message && data.parking_id && data.entry_timestamp) {
+                html += '<div class="interactive-success">';
+                html += `<div class="result-title">🎉 Parking Confirmed!</div>`;
+                html += `<span class="badge">Slot: ${data.parking_id}</span>`;
+                html += `<span class="badge">Vehicle: ${extractVehicleId(data.message)}</span>`;
+                html += `<br><br><table class="details-table">
+                            <tr><th>Entry Time</th>
+                                <td>${formatUTCtoIST(data.entry_timestamp)} <span style="font-size:0.97em; color:#555">(IST)</span></td>
+                            </tr>
+                            <tr><th>Expected Exit Time</th>
+                                <td>${formatUTCtoIST(data.expected_exit_time)} <span style="font-size:0.97em; color:#555">(IST)</span></td>
+                            </tr>
+                        </table>`;
+                html += `<ul class="next-steps-list">
+                            <li>You will receive a reminder email 10 minutes before your exit time.</li>
+                            <li>Have a great day! 🚗</li>
+                        </ul>`;
+                html += '</div>';
+            // Exit confirmation
+            } else if (data && data.message && data.exit_timestamp) {
+                html += '<div class="interactive-success">';
+                html += `<div class="exit-message-title">🚦 Exit Success</div>`;
+                html += `<span class="badge">Slot: ${data.parking_id || "--"}</span>`;
+                html += `<span class="badge">Vehicle: ${extractVehicleId(data.message)}</span>`;
+                html += `<br><br><table class="details-table">
+                            <tr><th>Exit Time</th>
+                                <td>${formatUTCtoIST(data.exit_timestamp)} <span style="font-size:0.97em; color:#555">(IST)</span></td>
+                            </tr>
+                        </table>`;
+                html += `<ul class="next-steps-list">
+                            <li>Thank you for using Smart Parking System!</li>
+                            <li>Drive safe and visit again. 🛣️</li>
+                        </ul>`;
+                html += '</div>';
+            } else if (data && data.message) {
+                html += '<div class="interactive-success">';
+                html += `<div class="result-title">${data.message}</div>`;
+                html += '</div>';
+            } else {
+                html = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            responseArea.innerHTML = html;
+            responseArea.className = 'response-success';
+            responseArea.style.display = 'block';
+        }
+
+        // Interactive, user-friendly error/edge case display
+        function displayErrorResponse(data) {
+            let html = '';
+            if (data && data.error && /no available parking slots/i.test(data.error)) {
+                // -- ALL SLOTS FULL message, NO 'next steps' --
+                html += '<div class="interactive-success" style="text-align:center;">';
+                html += `<div class="result-title" style="color:#dc3545;">🚫 All Slots Full!</div>`;
+                html += `<div style="font-size:1.06em; margin:16px 0 4px 0; color:#333;">`;
+                html += `${data.error.replace('No available parking slots', 'Sorry!<br>There are currently no slots available')}`;
+                html += `</div>`;
+                html += '</div>';
+            } else if (data && data.error && /already subscribed/i.test(data.error)) {
+                html += `<div class="interactive-success"><div class="result-title" style="color:#f59c00;">⚠️ Already Subscribed!</div>
+                            <div style="font-size:1.05em;">You’re already subscribed for alert notifications for this floor and area.
+                            <br>If you aren’t getting emails, check your spam or confirm your subscription link.</div></div>`;
+            } else if (data && data.error && /taken/i.test(data.error)) {
+                html += `<div class="interactive-success"><div class="result-title" style="color:#fa7c18;">🔄 Spot just taken!</div>
+                            <div style="font-size:1.05em;">That parking spot was just booked by someone else.<br>Pick another slot, or refresh to see new availability!</div></div>`;
+            } else if (data && data.error) {
+                html += '<div class="interactive-success">';
+                html += `<div class="result-title" style="color:#dc3545;">⚠️ Unable to Complete</div>`;
+                html += `<div style="font-size:1.05em; color:#333; margin:8px 0;">${data.error}</div>`;
+                html += '<ul class="next-steps-list"><li>Please check your input and try again.</li></ul>';
+                html += '</div>';
+            } else {
+                html = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            responseArea.innerHTML = html;
+            responseArea.className = 'response-error';
+            responseArea.style.display = 'block';
+        }
+
+        function extractVehicleId(msg) {
+            const match = msg && msg.match(/Vehicle (\S+)/i);
+            return match ? match[1] : '--';
+        }
+    });
+    </script>
+</body>
+</html>

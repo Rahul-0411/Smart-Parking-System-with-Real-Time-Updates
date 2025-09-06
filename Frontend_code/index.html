@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking - Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fa-solid fa-square-parking"></i> SmartParking</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="#management" class="nav-link"><i class="fas fa-tasks"></i> Parking Management</a></li>
+                    <li><a href="#logs" class="nav-link"><i class="fas fa-clipboard-list"></i> Vehicle Logs</a></li>
+                    <li><a href="analytics.html"><i class="fas fa-chart-line"></i> View Analytics</a></li>
+                    <li><a href="#settings" class="nav-link"><i class="fas fa-cog"></i> System Settings</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section id="dashboard-page" class="page active">
+                <header class="main-header">
+                    <h1>Dashboard Overview</h1>
+                </header>
+                <div class="metrics-grid">
+                    <div class="metric-card"><h3>Total Spots</h3><p id="total-spots">--</p></div>
+                    <div class="metric-card"><h3>Occupied Spots</h3><p id="occupied-spots">--</p></div>
+                    <div class="metric-card"><h3>Available Spots</h3><p id="available-spots">--</p></div>
+                    <div class="metric-card"><h3>Occupancy Rate</h3><p id="occupancy-rate">--</p></div>
+                </div>
+                <div class="content-row">
+                    <div class="live-status-container">
+                        <h2>Live Parking Status</h2>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="select-all-slots"></th>
+                                        <th>Spot ID</th>
+                                        <th>Status</th>
+                                        <th>Vehicle ID</th>
+                                        <th>User Email</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="parking-data-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="alerts-container">
+                        <h2><i class="fas fa-bell" style="color: #d9534f;"></i> Overdue Alerts</h2>
+                        <ul id="alerts-list">
+                            </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="management-page" class="page">
+                <header class="main-header"><h1>Parking Management</h1></header>
+                <div class="management-grid">
+                    <div class="card">
+                        <h3><i class="fas fa-plus-circle"></i> Add New Slots</h3>
+                        <form id="add-slots-form">
+                            <input type="number" id="area-number" placeholder="Area Number (e.g., 1)" required>
+                            <input type="number" id="floor-number" placeholder="Floor Number (e.g., 3)" required>
+                            <input type="number" id="new-slots-count" placeholder="Number of New Slots" required>
+                            <button type="submit" class="btn btn-primary">Add Slots</button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-edit"></i> Batch Actions on Selected Slots</h3>
+                        <p>Select slots from the Dashboard table to perform actions.</p>
+                        <div class="batch-actions">
+                            <button id="btn-set-maintenance" class="btn btn-secondary">Set to Maintenance</button>
+                            <button id="btn-set-empty" class="btn btn-secondary">Set to Empty</button>
+                            <button id="btn-delete-selected" class="btn btn-danger">Delete Selected</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="logs-page" class="page">
+                <header class="main-header"><h1>View Vehicle Logs</h1></header>
+                <div class="card">
+                    <form id="view-logs-form">
+                        <label for="log-date">Select Date:</label>
+                        <input type="date" id="log-date" required>
+                        <button type="submit" class="btn btn-primary">Fetch Logs</button>
+                    </form>
+                </div>
+                <div class="data-table-container">
+                    <h2>Logs for <span id="displayed-log-date"></span></h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>Vehicle ID</th><th>Parking ID</th><th>Entry Time</th><th>Exit Time</th></tr></thead>
+                            <tbody id="vehicle-logs-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="settings-page" class="page">
+                <header class="main-header"><h1>System Settings</h1></header>
+                 <div class="card">
+                    <h3><i class="fas fa-rocket"></i> Initialize System</h3>
+                    <p>Use this to perform the initial setup of the entire parking structure.</p>
+                    <form id="initialize-system-form">
+                        <textarea id="parking-layout" rows="5" placeholder='[{"area": 1, "floors": 3, "slots_per_floor": 20}]' required></textarea>
+                        <button type="submit" class="btn btn-primary">Initialize System</button>
+                    </form>
+                </div>
+                <div class="card danger-zone">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+                    <p>This will permanently delete all parking slots. This action cannot be undone.</p>
+                    <button id="reset-system-btn" class="btn btn-danger">Reset Entire System</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="manual-entry-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Manual Vehicle Entry</h2>
+            <form id="manual-entry-form">
+                <input type="hidden" id="modal-parking-id">
+                <label>Parking Spot ID: <b id="modal-parking-id-display"></b></label>
+                <input type="text" id="modal-vehicle-id" placeholder="Vehicle ID (e.g., MH14-AB-1234)" required>
+                <input type="email" id="modal-email" placeholder="User Email" required>
+                <input type="number" id="modal-expected-time" placeholder="Expected Stay (in minutes)" required>
+                <button type="submit" class="btn btn-primary">Assign Vehicle</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
