@@ -84,4 +84,5 @@ def lambda_handler(event, context):
                 "Access-Control-Allow-Methods": "OPTIONS,POST"
             },
             'body': json.dumps({'error': f"Internal Server Error: {str(e)}"})
+
         }
